@@ -1,0 +1,16 @@
+
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - 3003:3000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
+    volumes:
+      - ./certs:/usr/src/app/certs
+      - ./logs:/usr/src/app/logs
+  
+
