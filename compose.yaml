@@ -12,5 +12,9 @@ services:
     volumes:
       - ./certs:/usr/src/app/certs
       - ./logs:/usr/src/app/logs
-  
 
+networks:
+  default:
+    external: true
+    name: goodfood-api
+  

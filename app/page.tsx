@@ -1,5 +1,6 @@
+"use client";
 import Image from "next/image";
-
+import { GoodFoodButton } from "@goodfoodcesi/goodfood-ui";
 export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
@@ -24,6 +25,10 @@ export default function Home() {
             Save and see your changes instantly.
           </li>
         </ol>
+
+        <GoodFoodButton className="w-[311px]" variant="solid" color="default">
+          Mon button goodfood
+        </GoodFoodButton>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
