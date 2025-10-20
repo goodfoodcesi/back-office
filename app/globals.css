@@ -1,26 +1,69 @@
 @import "tailwindcss";
+@tailwind utilities;
 @import "@goodfoodcesi/goodfood-ui/index.css";
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
 
-@theme inline {
+:root {
+  --color-black: #1f1f1f;
+  --color-white: #ffffff;
+  --color-gray-50: #f5f5f8;
+  --color-gray-100: #e8e8e8;
+  --color-gray-200: #d9d9d9;
+  --color-gray-600: #4a5565;
+  --color-gray-700: #687887;
+  --color-gray-800: #161618;
+  --color-yellow-500: #ffbf00;
+  --color-yellow-600: #e6ad00;
+
+  /* Rôles sémantiques */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-border: var(--border-default);
+
+  /* Texte */
+  --color-text-default: var(--text-default);
+  --color-text-light: var(--text-light);
+  --color-text-alt: var(--text-alt);
+
+  --black: var(--color-black);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --color-black: #1f1f1f;
+  --color-white: #ffffff;
+  --color-gray-50: #f5f5f8;
+  --color-gray-100: #e8e8e8;
+  --color-gray-200: #d9d9d9;
+  --color-gray-600: #4a5565;
+  --color-gray-700: #687887;
+  --color-gray-800: #161618;
+  --color-yellow-500: #ffbf00;
+  --color-yellow-600: #e6ad00;
+
+  /* Rôles sémantiques */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border-default);
+
+  /* Texte */
+  --color-text-default: var(--text-default);
+  --color-text-light: var(--text-light);
+  --color-text-alt: var(--text-alt);
+
+  --black: var(--color-black);
+}
+
+@layer utilities {
+
+  .auth-side {
+    display: none;
+     background-color: var(--black);
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  
+  @media (min-width: 1024px) {
+    .auth-side {
+      display: flex;
+      width: 50%;
+    }
+  }
+  
 }
