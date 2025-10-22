@@ -6,7 +6,7 @@ export default function LoginPage() {
     <div className="space-y-6">
       <div className="text-center lg:text-left">
         <div className="flex justify-center items-center">
-         <Logo width={128} height={128} theme="dark" variant={2} />
+          <Logo width={128} height={128} theme="dark" variant="2" />
         </div>
         <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
         <p className="mt-2 text-gray-600">Sign in to your account</p>
@@ -14,13 +14,17 @@ export default function LoginPage() {
 
       <form className="space-y-4">
         <div>
-          <InputEmail label="Email" placeholder="test@test.com"/>
+          <InputEmail label="Email" placeholder="test@test.com" />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Password
           </label>
+
           <input
             id="password"
             type="password"
@@ -38,13 +42,15 @@ export default function LoginPage() {
             Forgot password?
           </a>
         </div> */}
-        <GoodFoodButton variable="solid" color="alt" className="w-full">Sign in</GoodFoodButton>
+        <GoodFoodButton variant="solid" color="alt" className="w-full">
+          Sign in
+        </GoodFoodButton>
       </form>
 
       <p className="text-center text-sm text-gray-600">
-        Vous ne possédez pas de compte ? {' '}
+        Vous ne possédez pas de compte ?{" "}
         <a href="/signup" className="text-black font-medium underline">
-          S'inscrire
+          {"S'inscrire"}
         </a>
       </p>
     </div>

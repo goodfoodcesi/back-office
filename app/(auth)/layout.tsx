@@ -12,7 +12,7 @@ export default function AuthLayout({
       <div className="  auth-side md:w-1/2 items-center justify-center">
         <div className="text-center">
           {/* Replace with your actual logo component or image */}
-          <Logo theme="light" variant={3} />
+          <Logo theme="light" variant="3" />
 
           <h1 className="text-white text-2xl font-semibold">BACK-OFFICE</h1>
         </div>
