@@ -1,26 +1,31 @@
-// middleware.ts
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('auth-token')
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
-                     request.nextUrl.pathname.startsWith('/onboarding') ||
-                     request.nextUrl.pathname.startsWith('/signup')
+  const token = request.cookies.get("auth-token");
+  const { pathname } = request.nextUrl;
 
-  // Si pas de token et pas sur page auth, redirect login
-  if (!token && !isAuthPage) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  const publicPaths = ["/login", "/signup", "/onboarding"];
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+
+  if (!token && !isPublicPath) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Si token et sur page auth, redirect dashboard
-  if (token && isAuthPage) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  if (token && isPublicPath) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    return NextResponse.redirect(dashboardUrl);
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-}
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico|webp)).*)",
+  ],
+};
