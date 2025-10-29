@@ -1,15 +1,19 @@
 "use client"
 import {InputEmail, GoodFoodButton, Logo} from "@goodfoodcesi/goodfood-ui"
+import { NextURL } from "next/dist/server/web/next-url";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="text-center lg:text-left">
         <div className="flex justify-center items-center">
-          <Logo width={128} height={128} theme="dark" variant="2" />
+          <Logo width={64} height={64} theme="dark" variant="2" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-        <p className="mt-2 text-gray-600">Sign in to your account</p>
+        <h2 className="text-3xl font-bold text-gray-900">Bienvenue</h2>
+        <p className="mt-2 text-gray-600">
+          Accédez à votre espace administrateur
+        </p>
       </div>
 
       <form className="space-y-4">
@@ -47,11 +51,13 @@ export default function LoginPage() {
         </GoodFoodButton>
       </form>
 
+      <div className="w-full h-[1px] bg-[var(--color-gray-200)]"></div>
+
       <p className="text-center text-sm text-gray-600">
         Vous ne possédez pas de compte ?{" "}
-        <a href="/signup" className="text-black font-medium underline">
+        <Link className="text-black font-medium underline" href="/signup">
           {"S'inscrire"}
-        </a>
+        </Link>
       </p>
     </div>
   );

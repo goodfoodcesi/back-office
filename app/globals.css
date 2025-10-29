@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Grape+Nuts&family=Space+Grotesk:wght@300..700&display=swap');
 @import "tailwindcss";
 @tailwind utilities;
 @import "@goodfoodcesi/goodfood-ui/index.css";
+
+
 
 :root {
   --color-black: #1f1f1f;
@@ -25,6 +28,7 @@
   --color-text-alt: var(--text-alt);
 
   --black: var(--color-black);
+  --font-sans: 'Space Grotesk', sans-serif;
 }
 
 @theme {
@@ -50,6 +54,8 @@
   --color-text-alt: var(--text-alt);
 
   --black: var(--color-black);
+
+  --font-sans: 'Space Grotesk', sans-serif;
 }
 
 @layer utilities {
