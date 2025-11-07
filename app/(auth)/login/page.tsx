@@ -1,9 +1,65 @@
-"use client"
-import {InputEmail, GoodFoodButton, Logo} from "@goodfoodcesi/goodfood-ui"
+"use client";
+import { InputEmail, GoodFoodButton, Logo } from "@goodfoodcesi/goodfood-ui";
 import { NextURL } from "next/dist/server/web/next-url";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+
+type ErrorLoginForm = {
+  code: string | undefined;
+  message: string | undefined;
+};
 
 export default function LoginPage() {
+  const [errors, setErrors] = useState({ email: "", password: "", other: "" });
+
+  const handleErrors = ({ code, message }: ErrorLoginForm) => {
+    if (code && message) {
+      if (code === "INVALID_EMAIL") {
+        setErrors((prevState) => ({
+          ...prevState,
+          email: message,
+        }));
+      } else if (code === "INVALID_PASSWORD") {
+        setErrors((prevState) => ({
+          ...prevState,
+          password: message,
+        }));
+      } else {
+        setErrors((prevState) => ({
+          ...prevState,
+          other: message,
+        }));
+      }
+    }
+  };
+
+  const login = async (form: FormData) => {
+    const email = form.get("email") ?? "";
+    const password = form.get("password") ?? "";
+    console.log("check");
+    const { data, error } = await authClient.signIn.email({
+      email: email as string,
+      password: password as string,
+    });
+
+    if (error) {
+      const { code, message } = error;
+      handleErrors({ code, message });
+    }
+
+    if (data) {
+      console.log("c'est passer: ", data);
+    }
+  };
+
+  const handleResetError = (key: string) => {
+    setErrors((prevState) => ({
+      ...prevState,
+      [key]: "",
+    }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center lg:text-left">
@@ -16,9 +72,19 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="space-y-4">
+      <form className="space-y-4" action={login}>
         <div>
-          <InputEmail label="Email" placeholder="test@test.com" />
+          <InputEmail
+            label="Email"
+            placeholder="test@test.com"
+            onChange={() => handleResetError("email")}
+          />
+
+          {errors.email ? (
+            <span className=" text-red-600 p-2">
+              {errors.email ? errors.email : null}
+            </span>
+          ) : null}
         </div>
 
         <div>
@@ -34,7 +100,9 @@ export default function LoginPage() {
             type="password"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none"
             placeholder="••••••••"
+            onChange={() => handleResetError("password")}
           />
+          <span>{errors.password ? errors.password : null} </span>
         </div>
 
         <GoodFoodButton variant="solid" color="alt" className="w-full">

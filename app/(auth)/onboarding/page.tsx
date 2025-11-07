@@ -1,23 +1,45 @@
 "use client";
 import { useActionState } from "react";
+import { useFormState } from "react-dom";
+type FormState = {
+  error?: string;
+  success?: boolean;
+} | null;
+
+async function handleFormAction(
+  _: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
+
+  if (!email.includes("@")) {
+    return { error: "Email invalide", success: false };
+  }
+
+  console.log("Form data:", { username, email });
+  return { success: true };
+}
 
 export default function OnboardingPage() {
-  const [state, formAction, pending] = useActionState(
-    async (prevState, formData) => {
-      const username = formData.get("username") as string;
-      const email = formData.get("email") as string;
+  // const [state, formAction, pending] = useActionState<FormState>(
+  //   async (prevState, formData) => {
+  //     const username = formData.get("username") as string;
+  //     const email = formData.get("email") as string;
 
-      // 🧩 petite validation côté client/serveur
-      if (!email.includes("@")) {
-        return { error: "Email invalide", success: false };
-      }
+  //     // 🧩 petite validation côté client/serveur
+  //     if (!email.includes("@")) {
+  //       return { error: "Email invalide", success: false };
+  //     }
 
-      // tu pourrais aussi faire un appel serveur ici
-      console.log("Form data:", { username, email });
-      return { success: true };
-    },
-    null
-  );
+  //     // tu pourrais aussi faire un appel serveur ici
+  //     console.log("Form data:", { username, email });
+  //     return { success: true };
+  //   },
+  //   null
+  // );
+
+  const [state, formAction, pending] = useFormState(handleFormAction, null);
 
   return (
     <main className="max-w-md mx-auto p-8 space-y-4">

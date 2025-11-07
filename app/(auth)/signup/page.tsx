@@ -10,9 +10,13 @@ import {
   InputFile,
 } from "@goodfoodcesi/goodfood-ui";
 
+
+
+
 export default function OnboardingPage() {
   const [formData, setFormData] = useState({
-    username: "",
+    firstname: "",
+    lastname: "",
     email: "",
     password: "",
     confirm: "",
@@ -81,6 +85,7 @@ export default function OnboardingPage() {
     <div className=" mx-auto p-8 space-y-6">
       <form action={formAction} onSubmit={(e) => e.preventDefault()}>
         <MultiStepForm
+          defaultStep={0}
           onBeforeNext={onBeforeNext}
           onFinish={onFinish}
           showDefaultActions
@@ -110,14 +115,14 @@ export default function OnboardingPage() {
             <div className="w-full flex items-start gap-4">
               <InputText
                 label="Nom"
-                value={formData.username}
+                value={formData.lastname}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, username: e.target.value }))
                 }
               />
               <InputText
                 label="Prénom"
-                value={formData.username}
+                value={formData.firstname}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, username: e.target.value }))
                 }
