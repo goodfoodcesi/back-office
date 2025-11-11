@@ -89,7 +89,7 @@ export default function OnboardingPage() {
           onBeforeNext={onBeforeNext}
           onFinish={onFinish}
           showDefaultActions
-          renderHeader={({ step }) => {
+          renderHeader={({ step }: { step: number }) => {
             const titles = [
               "01. Parlez-nous de vous",
               "02. Votre établissement",
