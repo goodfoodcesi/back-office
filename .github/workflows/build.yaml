@@ -12,18 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to Scaleway Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: rg.fr-par.scw.cloud
+          username: nologin
+          password: ${{ secrets.SCW_SECRET_KEY }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -48,8 +47,8 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository }}:${{ env.TAG }}
-            ghcr.io/${{ github.repository }}:latest
+            rg.fr-par.scw.cloud/${{ secrets.SCW_REGISTRY_NAMESPACE }}/${{ github.event.repository.name }}:${{ env.TAG }}
+            rg.fr-par.scw.cloud/${{ secrets.SCW_REGISTRY_NAMESPACE }}/${{ github.event.repository.name }}:latest
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -58,8 +57,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"
           body: |
-            🐋 Docker image published:
+            Docker image published:
 
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            rg.fr-par.scw.cloud/${{ secrets.SCW_REGISTRY_NAMESPACE }}/${{ github.event.repository.name }}:${{ github.ref_name }}
 
           generate_release_notes: true
