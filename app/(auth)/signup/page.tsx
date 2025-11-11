@@ -31,7 +31,7 @@ export default function OnboardingPage() {
   });
 
   const [state, formAction, pending] = useActionState(
-    async (_prev, formData) => {
+    async (_prev: any, formData: FormData) => {
       console.log(
         "🎯 Données envoyées :",
         Object.fromEntries(formData.entries())

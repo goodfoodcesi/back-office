@@ -1,6 +1,5 @@
 "use client";
 import { InputEmail, GoodFoodButton, Logo } from "@goodfoodcesi/goodfood-ui";
-import { NextURL } from "next/dist/server/web/next-url";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
