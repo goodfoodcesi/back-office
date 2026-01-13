@@ -75,7 +75,8 @@ jobs:
           git checkout ${BRANCH} || git checkout -b ${BRANCH}
 
           # Aller dans le bon overlay
-          cd k3s/overlays/${OVERLAY}
+          # cd k3s/overlays/${OVERLAY}
+          cd k3s/overlays/preprod
 
           # Installer kustomize
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
@@ -93,8 +94,9 @@ jobs:
             exit 0
           fi
 
-          git add k3s/overlays/${OVERLAY}/kustomization.yaml
+          # git add k3s/overlays/${OVERLAY}/kustomization.yaml
+          git add k3s/overlays/preprod/kustomization.yaml
           git commit -m "🚀 Deploy ${SERVICE_NAME}:${IMAGE_TAG} (${OVERLAY})"
           git push origin ${BRANCH}
 
-          echo "✅ Updated ${SERVICE_NAME} to ${IMAGE_TAG} in ${OVERLAY}"
+          echo "✅ Updated ${SERVICE_NAME} to ${IMAGE_TAG} in preprod"
