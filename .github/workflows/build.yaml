@@ -75,7 +75,7 @@ jobs:
           git checkout ${BRANCH} || git checkout -b ${BRANCH}
 
           # Aller dans le bon overlay
-          cd k8s/overlays/${OVERLAY}
+          cd k3s/overlays/${OVERLAY}
 
           # Installer kustomize
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
