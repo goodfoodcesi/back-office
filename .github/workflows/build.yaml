@@ -68,7 +68,7 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
 
-          git clone https://x-access-token:${PAT_TOKEN}@github.com/goodfoodcesi/infra.git
+          git clone https://x-access-token:${PAT_TOKEN}@github.com/goodfoodcesi/goodfood-infra.git
           cd infra
 
           # On suit la même branche que le repo applicatif (main/dev)
