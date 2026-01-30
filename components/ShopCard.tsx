@@ -1,3 +1,4 @@
+// ShopCard.tsx (mêmes styles, juste data + fallback)
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { StatusBadge } from "./StatusBadge";
 import { MapPin, Clock } from "lucide-react";
@@ -5,13 +6,29 @@ import { MapPin, Clock } from "lucide-react";
 export interface Shop {
   id: string;
   name: string;
-  description: string;
-  address: string;
-  status: "draft" | "pending" | "validated" | "refused";
-  imageUrl: string;
+  description?: string | null;
+  address?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  zipCode?: string | null;
+  country?: string | null;
+
+  status:
+    | "draft"
+    | "pending_validation"
+    | "validated"
+    | "rejected"
+    | "action_required"
+    | "visible"
+    | "hidden";
+
+  // backend: logo / coverImage (ou rien)
+  logo?: string | null;
+  coverImage?: string | null;
+
   createdAt: string;
   adminMessage?: string;
-  category: string;
+  category?: string | null;
 }
 
 interface ShopCardProps {
@@ -23,6 +40,31 @@ interface ShopCardProps {
   onRequestInfo?: () => void;
 }
 
+function buildAddress(shop: Shop) {
+  const parts = [
+    shop.address,
+    shop.addressLine2,
+    [shop.zipCode, shop.city].filter(Boolean).join(" "),
+    shop.country,
+  ]
+    .map((v) => (v ?? "").trim())
+    .filter(Boolean);
+
+  return parts.join(", ");
+}
+
+const FALLBACK_IMAGE =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+  <rect width="100%" height="100%" fill="#e5e7eb"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+    fill="#9ca3af" font-family="Arial, sans-serif" font-size="36">
+    No image
+  </text>
+</svg>
+`);
+
 export function ShopCard({
   shop,
   onClick,
@@ -31,6 +73,11 @@ export function ShopCard({
   onRefuse,
   onRequestInfo,
 }: ShopCardProps) {
+  const addressText = buildAddress(shop) || "Adresse non renseignée";
+  const imageUrl = shop.coverImage || shop.logo || FALLBACK_IMAGE;
+
+  console.log("les info dans shop card oooooo: ", shop);
+
   return (
     <div
       className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
@@ -39,7 +86,7 @@ export function ShopCard({
       {/* Image */}
       <div className="relative h-[180px] w-full overflow-hidden">
         <ImageWithFallback
-          src={shop.imageUrl}
+          src={imageUrl}
           alt={shop.name}
           className="w-full h-full object-cover"
         />
@@ -56,19 +103,19 @@ export function ShopCard({
               {shop.name}
             </h3>
             <p className="font-['Space_Grotesk'] text-[12px] text-[#6b7280] mb-[8px]">
-              {shop.category}
+              {(shop.category ?? "").trim() || "Restaurant"}
             </p>
           </div>
         </div>
 
         <p className="font-['Space_Grotesk'] text-[14px] text-[#4b5563] mb-[12px] line-clamp-2">
-          {shop.description}
+          {(shop.description ?? "").trim() || "Aucune description fournie"}
         </p>
 
         <div className="flex items-center gap-[8px] mb-[12px]">
           <MapPin className="w-[14px] h-[14px] text-[#6b7280]" />
           <p className="font-['Space_Grotesk'] text-[12px] text-[#6b7280]">
-            {shop.address}
+            {addressText}
           </p>
         </div>
 
@@ -88,7 +135,7 @@ export function ShopCard({
         )}
 
         {/* Admin Actions */}
-        {showAdminActions && shop.status === "pending" && (
+        {showAdminActions && shop.status === "pending_validation" && (
           <div className="flex gap-[8px] mt-[12px]">
             <button
               onClick={(e) => {

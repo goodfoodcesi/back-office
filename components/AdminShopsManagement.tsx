@@ -1,4 +1,5 @@
 "use client"
+import Image from "next/image";
 import { useState } from "react";
 import {
   Store,
@@ -318,7 +319,7 @@ export function AdminShopsManagement({
                     <div className="flex items-start justify-between mb-[16px]">
                       <div className="flex items-start gap-[16px] flex-1">
                         {shop.imageUrl && (
-                          <img
+                          <Image
                             src={shop.imageUrl}
                             alt={shop.name}
                             className="w-[64px] h-[64px] rounded-[8px] object-cover shrink-0"
@@ -331,7 +332,7 @@ export function AdminShopsManagement({
                             </h3>
                             <Badge
                               className={`font-['Space_Grotesk'] text-[11px] px-[8px] py-[2px] ${getShopStatusColor(
-                                shop.status
+                                shop.status,
                               )}`}
                               variant="outline"
                             >
@@ -389,7 +390,11 @@ export function AdminShopsManagement({
 
                       <div className="flex items-center gap-[8px]">
                         <CollapsibleTrigger asChild>
-                          <Button variant="outline" size="sm" className="font-['Space_Grotesk']">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="font-['Space_Grotesk']"
+                          >
                             {isExpanded ? (
                               <>
                                 <ChevronUp className="w-[16px] h-[16px] mr-[6px]" />
@@ -459,7 +464,9 @@ export function AdminShopsManagement({
                         <Button
                           size="sm"
                           className="bg-green-600 hover:bg-green-700 text-white font-['Space_Grotesk']"
-                          onClick={() => handleShopAction(shop, "validate-shop")}
+                          onClick={() =>
+                            handleShopAction(shop, "validate-shop")
+                          }
                         >
                           <CheckCircle2 className="w-[14px] h-[14px] mr-[6px]" />
                           Valider la boutique
@@ -503,8 +510,12 @@ export function AdminShopsManagement({
                       ) : (
                         <div className="space-y-[12px]">
                           {shop.documents.map((document) => {
-                            const expired = isDocumentExpired(document.expiryDate);
-                            const expiringSoon = isDocumentExpiringSoon(document.expiryDate);
+                            const expired = isDocumentExpired(
+                              document.expiryDate,
+                            );
+                            const expiringSoon = isDocumentExpiringSoon(
+                              document.expiryDate,
+                            );
 
                             return (
                               <div
@@ -513,8 +524,8 @@ export function AdminShopsManagement({
                                   expired
                                     ? "bg-red-50 border-red-300"
                                     : expiringSoon
-                                    ? "bg-yellow-50 border-yellow-300"
-                                    : "bg-[#f9fafb] border-[#e5e7eb]"
+                                      ? "bg-yellow-50 border-yellow-300"
+                                      : "bg-[#f9fafb] border-[#e5e7eb]"
                                 }`}
                               >
                                 <div className="flex items-center gap-[12px] flex-1">
@@ -528,7 +539,7 @@ export function AdminShopsManagement({
                                       </p>
                                       <div
                                         className={`w-[8px] h-[8px] rounded-full ${getDocumentStatusColor(
-                                          document.status
+                                          document.status,
                                         )}`}
                                       />
                                     </div>
@@ -537,9 +548,9 @@ export function AdminShopsManagement({
                                         <Calendar className="w-[12px] h-[12px]" />
                                         <span className="font-['Space_Grotesk']">
                                           Téléchargé le{" "}
-                                          {new Date(document.uploadedAt).toLocaleDateString(
-                                            "fr-FR"
-                                          )}
+                                          {new Date(
+                                            document.uploadedAt,
+                                          ).toLocaleDateString("fr-FR")}
                                         </span>
                                       </div>
                                       {document.expiryDate && (
@@ -548,8 +559,8 @@ export function AdminShopsManagement({
                                             expired
                                               ? "text-red-600"
                                               : expiringSoon
-                                              ? "text-yellow-700"
-                                              : ""
+                                                ? "text-yellow-700"
+                                                : ""
                                           }`}
                                         >
                                           <AlertCircle className="w-[12px] h-[12px]" />
@@ -557,11 +568,11 @@ export function AdminShopsManagement({
                                             {expired
                                               ? "Expiré le"
                                               : expiringSoon
-                                              ? "Expire le"
-                                              : "Valide jusqu'au"}{" "}
-                                            {new Date(document.expiryDate).toLocaleDateString(
-                                              "fr-FR"
-                                            )}
+                                                ? "Expire le"
+                                                : "Valide jusqu'au"}{" "}
+                                            {new Date(
+                                              document.expiryDate,
+                                            ).toLocaleDateString("fr-FR")}
                                           </span>
                                         </div>
                                       )}
@@ -582,7 +593,9 @@ export function AdminShopsManagement({
                                     variant="outline"
                                     size="sm"
                                     className="font-['Space_Grotesk']"
-                                    onClick={() => window.open(document.url, "_blank")}
+                                    onClick={() =>
+                                      window.open(document.url, "_blank")
+                                    }
                                   >
                                     <Eye className="w-[14px] h-[14px] mr-[6px]" />
                                     Voir
@@ -601,7 +614,11 @@ export function AdminShopsManagement({
                                         size="sm"
                                         className="bg-green-600 hover:bg-green-700 text-white font-['Space_Grotesk']"
                                         onClick={() =>
-                                          handleDocumentAction(shop, document, "validate-doc")
+                                          handleDocumentAction(
+                                            shop,
+                                            document,
+                                            "validate-doc",
+                                          )
                                         }
                                       >
                                         <CheckCircle2 className="w-[14px] h-[14px] mr-[6px]" />
@@ -612,7 +629,11 @@ export function AdminShopsManagement({
                                         variant="destructive"
                                         className="font-['Space_Grotesk']"
                                         onClick={() =>
-                                          handleDocumentAction(shop, document, "refuse-doc")
+                                          handleDocumentAction(
+                                            shop,
+                                            document,
+                                            "refuse-doc",
+                                          )
                                         }
                                       >
                                         <XCircle className="w-[14px] h-[14px] mr-[6px]" />

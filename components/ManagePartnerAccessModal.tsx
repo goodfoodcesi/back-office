@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, Search } from "lucide-react";
 import { Partner } from "./PartnersView";
 import { Shop } from "./ShopCard";
+import Image from "next/image";
 
 interface ManagePartnerAccessModalProps {
   isOpen: boolean;
@@ -21,10 +22,8 @@ export function ManagePartnerAccessModal({
   const [selectedShopIds, setSelectedShopIds] = useState<string[]>(partner.accessibleShops);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredShops = shops.filter(
-    (shop) =>
-      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredShops = shops.filter((shop) =>
+    shop.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleToggleShop = (shopId: string) => {
@@ -109,8 +108,11 @@ export function ManagePartnerAccessModal({
                   >
                     <div className="flex items-center gap-[12px]">
                       <div className="w-[48px] h-[48px] rounded-[8px] overflow-hidden shrink-0">
-                        <img
-                          src={shop.imageUrl}
+                        <Image
+                          src={
+                            shop.coverImage ||
+                            "https://placehold.co/600x400/000000/FFFFFF.png"
+                          }
                           alt={shop.name}
                           className="w-full h-full object-cover"
                         />

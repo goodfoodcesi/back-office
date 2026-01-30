@@ -1,15 +1,26 @@
 import { Store, CheckCircle, Clock, FileText } from "lucide-react";
 import { Shop } from "./ShopCard";
+import Image from "next/image";
 
-interface DashboardViewProps {
+export type DashboardViewProps = {
   shops: Shop[];
-  userRole: "manager" | "admin";
-}
+  userRole: "shop" | "admin";
+  onCreateShop?: (shopData: {
+    name: string;
+    description: string;
+    address: string;
+    category: string;
+    imageUrl: string;
+  }) => void;
+  creating?: boolean;
+};
 
 export function DashboardView({ shops, userRole }: DashboardViewProps) {
   const totalShops = shops.length;
   const validatedShops = shops.filter((s) => s.status === "validated").length;
-  const pendingShops = shops.filter((s) => s.status === "pending").length;
+  const pendingShops = shops.filter(
+    (s) => s.status === "pending_validation",
+  ).length;
   const draftShops = shops.filter((s) => s.status === "draft").length;
 
   const stats = [
@@ -43,7 +54,9 @@ export function DashboardView({ shops, userRole }: DashboardViewProps) {
     <div>
       <div className="mb-[32px]">
         <h1 className="font-['Space_Grotesk'] text-[32px] text-[#1f1f1f] mb-[8px]">
-          {userRole === "admin" ? "Tableau de bord Admin" : "Mon tableau de bord"}
+          {userRole === "admin"
+            ? "Tableau de bord Admin"
+            : "Mon tableau de bord"}
         </h1>
         <p className="font-['Space_Grotesk'] text-[16px] text-[#6b7280]">
           {userRole === "admin"
@@ -65,7 +78,10 @@ export function DashboardView({ shops, userRole }: DashboardViewProps) {
                   className="w-[48px] h-[48px] rounded-[12px] flex items-center justify-center"
                   style={{ backgroundColor: `${stat.color}15` }}
                 >
-                  <Icon className="w-[24px] h-[24px]" style={{ color: stat.color }} />
+                  <Icon
+                    className="w-[24px] h-[24px]"
+                    style={{ color: stat.color }}
+                  />
                 </div>
               </div>
               <p className="font-['Space_Grotesk'] text-[36px] text-[#1f1f1f] mb-[4px]">
@@ -90,7 +106,7 @@ export function DashboardView({ shops, userRole }: DashboardViewProps) {
             <p className="font-['Space_Grotesk'] text-[16px] text-[#6b7280]">
               Aucun shop pour le moment
             </p>
-            {userRole === "manager" && (
+            {userRole === "shop" && (
               <p className="font-['Space_Grotesk'] text-[14px] text-[#9ca3af] mt-[8px]">
                 Créez votre premier shop pour commencer
               </p>
@@ -104,8 +120,11 @@ export function DashboardView({ shops, userRole }: DashboardViewProps) {
                 className="flex items-center gap-[16px] p-[12px] rounded-[8px] hover:bg-[#f9fafb] transition-colors"
               >
                 <div className="w-[48px] h-[48px] rounded-[8px] overflow-hidden shrink-0">
-                  <img
-                    src={shop.imageUrl}
+                  <Image
+                    src={
+                      shop.coverImage ||
+                      "https://placehold.co/600x400/000000/FFFFFF.png"
+                    }
                     alt={shop.name}
                     className="w-full h-full object-cover"
                   />
@@ -123,21 +142,21 @@ export function DashboardView({ shops, userRole }: DashboardViewProps) {
                     className={`w-[8px] h-[8px] rounded-full ${
                       shop.status === "validated"
                         ? "bg-[#22c55e]"
-                        : shop.status === "pending"
-                        ? "bg-[#FFBF00]"
-                        : shop.status === "refused"
-                        ? "bg-[#ef4444]"
-                        : "bg-[#6b7280]"
+                        : shop.status === "pending_validation"
+                          ? "bg-[#FFBF00]"
+                          : shop.status === "rejected"
+                            ? "bg-[#ef4444]"
+                            : "bg-[#6b7280]"
                     }`}
                   />
                   <span className="font-['Space_Grotesk'] text-[12px] text-[#6b7280]">
                     {shop.status === "validated"
                       ? "Validé"
-                      : shop.status === "pending"
-                      ? "En attente"
-                      : shop.status === "refused"
-                      ? "Refusé"
-                      : "Brouillon"}
+                      : shop.status === "pending_validation"
+                        ? "En attente"
+                        : shop.status === "rejected"
+                          ? "Refusé"
+                          : "Brouillon"}
                   </span>
                 </div>
               </div>

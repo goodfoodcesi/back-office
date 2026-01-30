@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { ImagePlus, Trash2, Image as ImageIcon } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Input } from "./ui/input";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 interface ShopGalleryProps {
   images: string[];

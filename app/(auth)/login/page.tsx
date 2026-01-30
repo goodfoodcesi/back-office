@@ -1,63 +1,50 @@
 "use client";
+
+import React, { useEffect } from "react";
 import { InputEmail, GoodFoodButton, Logo } from "@goodfoodcesi/goodfood-ui";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
+import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-type ErrorLoginForm = {
-  code: string | undefined;
-  message: string | undefined;
+type FormState = {
+  error?: string;
+  submitted: boolean;
 };
 
+const initialState: FormState = { error: undefined, submitted: false };
+
+async function loginAction(_: FormState, form: FormData): Promise<FormState> {
+  const email = String(form.get("email") ?? "");
+  const password = String(form.get("password") ?? "");
+
+  const { data, error } = await authClient.signIn.email({
+    email,
+    password,
+  });
+
+  if (error) {
+    return {
+      error: error.message ?? "Identifiants invalides.",
+      submitted: true,
+    };
+  }
+
+  if (!data) {
+    return { error: "Une erreur est survenue.", submitted: true };
+  }
+  return { error: undefined, submitted: true };
+}
+
 export default function LoginPage() {
-  const [errors, setErrors] = useState({ email: "", password: "", other: "" });
+  const [state, formAction] = React.useActionState(loginAction, initialState);
+  const router = useRouter();
 
-  const handleErrors = ({ code, message }: ErrorLoginForm) => {
-    if (code && message) {
-      if (code === "INVALID_EMAIL") {
-        setErrors((prevState) => ({
-          ...prevState,
-          email: message,
-        }));
-      } else if (code === "INVALID_PASSWORD") {
-        setErrors((prevState) => ({
-          ...prevState,
-          password: message,
-        }));
-      } else {
-        setErrors((prevState) => ({
-          ...prevState,
-          other: message,
-        }));
-      }
+  useEffect(() => {
+    if (state.error === undefined && state.submitted === true) {
+      router.replace("/redirect");
     }
-  };
-
-  const login = async (form: FormData) => {
-    const email = form.get("email") ?? "";
-    const password = form.get("password") ?? "";
-    console.log("check");
-    const { data, error } = await authClient.signIn.email({
-      email: email as string,
-      password: password as string,
-    });
-
-    if (error) {
-      const { code, message } = error;
-      handleErrors({ code, message });
-    }
-
-    if (data) {
-      console.log("c'est passer: ", data);
-    }
-  };
-
-  const handleResetError = (key: string) => {
-    setErrors((prevState) => ({
-      ...prevState,
-      [key]: "",
-    }));
-  };
+  }, [state.submitted, state.error, router]);
 
   return (
     <div className="space-y-6">
@@ -71,19 +58,9 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="space-y-4" action={login}>
+      <form className="space-y-4" action={formAction}>
         <div>
-          <InputEmail
-            label="Email"
-            placeholder="test@test.com"
-            onChange={() => handleResetError("email")}
-          />
-
-          {errors.email ? (
-            <span className=" text-red-600 p-2">
-              {errors.email ? errors.email : null}
-            </span>
-          ) : null}
+          <InputEmail name="email" label="Email" placeholder="test@test.com" />
         </div>
 
         <div>
@@ -95,19 +72,26 @@ export default function LoginPage() {
           </label>
 
           <input
+            name="password"
             id="password"
             type="password"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none"
             placeholder="••••••••"
-            onChange={() => handleResetError("password")}
           />
-          <span>{errors.password ? errors.password : null} </span>
         </div>
 
-        <GoodFoodButton variant="solid" color="alt" className="w-full">
+        <GoodFoodButton
+          type="submit"
+          variant="solid"
+          color="alt"
+          className="w-full"
+        >
           Sign in
         </GoodFoodButton>
       </form>
+      {state.submitted && state.error && (
+        <span className="text-red-600 p-2">{state.error}</span>
+      )}
 
       <div className="w-full h-[1px] bg-[var(--color-gray-200)]"></div>
 

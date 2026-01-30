@@ -1,5 +1,7 @@
+import type { ShopStatus } from "@/types/shop";
+
 interface StatusBadgeProps {
-  status: "draft" | "pending" | "validated" | "refused";
+  status: ShopStatus;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
@@ -10,11 +12,17 @@ export function StatusBadge({ status }: StatusBadgeProps) {
       text: "white",
       icon: "📝",
     },
-    pending: {
+    pending_validation: {
       label: "En attente",
       bg: "#FFBF00",
       text: "#1f1f1f",
       icon: "⏳",
+    },
+    action_required: {
+      label: "Action requise",
+      bg: "#fb923c",
+      text: "white",
+      icon: "⚠️",
     },
     validated: {
       label: "Validé",
@@ -22,15 +30,36 @@ export function StatusBadge({ status }: StatusBadgeProps) {
       text: "white",
       icon: "✓",
     },
-    refused: {
+    visible: {
+      label: "Publié",
+      bg: "#16a34a",
+      text: "white",
+      icon: "👁️",
+    },
+    hidden: {
+      label: "Masqué",
+      bg: "#64748b",
+      text: "white",
+      icon: "🙈",
+    },
+    rejected: {
       label: "Refusé",
       bg: "#ef4444",
       text: "white",
       icon: "✗",
     },
-  };
+  } as const;
 
   const config = configs[status];
+
+  if (!config) {
+    // 🔴 IMPORTANT : fallback safe
+    return (
+      <div className="inline-flex items-center gap-[6px] px-[12px] py-[6px] rounded-[6px] bg-gray-400">
+        <span className="text-white text-[12px]">Statut inconnu</span>
+      </div>
+    );
+  }
 
   return (
     <div

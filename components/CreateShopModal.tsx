@@ -1,50 +1,32 @@
-import { useState } from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import { X } from "lucide-react";
+import { createShopAction } from "@/app/actions/shop/action";
+
+type State = { ok: boolean; error: string };
+const initialState: State = { ok: false, error: "" };
 
 interface CreateShopModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (shop: {
-    name: string;
-    description: string;
-    address: string;
-    category: string;
-    imageUrl: string;
-  }) => void;
 }
 
-export function CreateShopModal({
-  isOpen,
-  onClose,
-  onSubmit,
-}: CreateShopModalProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    address: "",
-    category: "Restaurant",
-    imageUrl: "",
-  });
+export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
+  const [state, formAction] = React.useActionState(
+    createShopAction,
+    initialState,
+  );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-    setFormData({
-      name: "",
-      description: "",
-      address: "",
-      category: "Restaurant",
-      imageUrl: "",
-    });
-    onClose();
-  };
+  useEffect(() => {
+    if (state.ok) onClose();
+  }, [state.ok, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-[16px]">
       <div className="bg-white rounded-[16px] max-w-[600px] w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between p-[24px] border-b border-[#e5e7eb]">
           <h2 className="font-['Space_Grotesk'] text-[24px] text-[#1f1f1f]">
             Créer un nouveau shop
@@ -57,38 +39,28 @@ export function CreateShopModal({
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-[24px]">
+        <form action={formAction} className="p-[24px]">
           <div className="flex flex-col gap-[16px]">
-            {/* Name */}
             <div>
-              <label className="font-['Space_Grotesk'] text-[14px] text-[#1f1f1f] mb-[8px] block">
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
                 Nom du shop *
               </label>
               <input
-                type="text"
+                name="name"
                 required
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px] font-['Space_Grotesk'] text-[14px] focus:border-[#FFBF00] outline-none transition-colors"
                 placeholder="Ex: Burger King"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
               />
             </div>
 
-            {/* Category */}
             <div>
-              <label className="font-['Space_Grotesk'] text-[14px] text-[#1f1f1f] mb-[8px] block">
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
                 Catégorie *
               </label>
               <select
+                name="category"
                 required
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
-                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px] font-['Space_Grotesk'] text-[14px] focus:border-[#FFBF00] outline-none transition-colors"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
               >
                 <option value="Restaurant">Restaurant</option>
                 <option value="Fast Food">Fast Food</option>
@@ -100,70 +72,60 @@ export function CreateShopModal({
               </select>
             </div>
 
-            {/* Description */}
             <div>
-              <label className="font-['Space_Grotesk'] text-[14px] text-[#1f1f1f] mb-[8px] block">
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
                 Description *
               </label>
               <textarea
+                name="description"
                 required
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
                 rows={4}
-                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px] font-['Space_Grotesk'] text-[14px] focus:border-[#FFBF00] outline-none transition-colors resize-none"
                 placeholder="Décrivez votre établissement..."
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px] resize-none"
               />
             </div>
 
-            {/* Address */}
             <div>
-              <label className="font-['Space_Grotesk'] text-[14px] text-[#1f1f1f] mb-[8px] block">
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
                 Adresse *
               </label>
               <input
-                type="text"
+                name="address"
                 required
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
-                }
-                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px] font-['Space_Grotesk'] text-[14px] focus:border-[#FFBF00] outline-none transition-colors"
                 placeholder="Ex: 123 Rue de la République, Paris"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
               />
             </div>
 
-            {/* Image URL */}
             <div>
-              <label className="font-['Space_Grotesk'] text-[14px] text-[#1f1f1f] mb-[8px] block">
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
                 URL de l'image *
               </label>
               <input
+                name="imageUrl"
                 type="url"
                 required
-                value={formData.imageUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, imageUrl: e.target.value })
-                }
-                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px] font-['Space_Grotesk'] text-[14px] focus:border-[#FFBF00] outline-none transition-colors"
                 placeholder="https://example.com/image.jpg"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
               />
             </div>
           </div>
 
-          {/* Actions */}
+          {state.error && (
+            <p className="text-red-600 mt-[16px]">{state.error}</p>
+          )}
+
           <div className="flex gap-[12px] mt-[24px]">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-[#e5e7eb] text-[#1f1f1f] px-[16px] py-[12px] rounded-[12px] font-['Space_Grotesk'] hover:bg-[#d1d5db] transition-colors"
+              className="flex-1 bg-[#e5e7eb] text-[#1f1f1f] px-[16px] py-[12px] rounded-[12px]"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="flex-1 bg-[#1f1f1f] text-white px-[16px] py-[12px] rounded-[12px] font-['Space_Grotesk'] hover:bg-[#2a2a2a] transition-colors"
+              className="flex-1 bg-[#1f1f1f] text-white px-[16px] py-[12px] rounded-[12px]"
             >
               Créer le shop
             </button>

@@ -13,7 +13,7 @@ import {
   Save,
 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export interface MenuItem {
   id: string;

@@ -1,25 +1,29 @@
+"use client";
 import { useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { ShopCard, Shop } from "./ShopCard";
-import { CreateShopModal } from "./CreateShopModal";
 
 interface ShopsViewProps {
   shops: Shop[];
-  onCreateShop: (shop: Omit<Shop, "id" | "status" | "createdAt">) => void;
+  onCreateShop: () => void;
   onShopClick?: (shopId: string) => void;
 }
 
-export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "validated" | "pending" | "draft">("all");
+export function ShopsView({
+  shops,
+  onCreateShop,
+  onShopClick,
+}: ShopsViewProps) {
+  const [activeTab, setActiveTab] = useState<
+    "all" | "validated" | "pending_validation" | "draft"
+  >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredShops = shops.filter((shop) => {
     const matchesTab = activeTab === "all" || shop.status === activeTab;
     const matchesSearch =
       searchQuery === "" ||
-      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.category.toLowerCase().includes(searchQuery.toLowerCase());
+      shop.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -31,9 +35,9 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
       count: shops.filter((s) => s.status === "validated").length,
     },
     {
-      id: "pending" as const,
+      id: "pending_validation" as const,
       label: "En attente",
-      count: shops.filter((s) => s.status === "pending").length,
+      count: shops.filter((s) => s.status === "pending_validation").length,
     },
     {
       id: "draft" as const,
@@ -44,14 +48,13 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-[32px]">
         <div className="flex items-center justify-between mb-[16px]">
           <h1 className="font-['Space_Grotesk'] text-[32px] text-[#1f1f1f]">
             Mes shops
           </h1>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={onCreateShop}
             className="bg-[#1f1f1f] text-white px-[20px] py-[12px] rounded-[12px] font-['Space_Grotesk'] hover:bg-[#2a2a2a] transition-colors flex items-center gap-[8px]"
           >
             <Plus className="w-[20px] h-[20px]" />
@@ -59,7 +62,6 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
           </button>
         </div>
 
-        {/* Search */}
         <div className="relative">
           <Search className="absolute left-[12px] top-[50%] translate-y-[-50%] w-[20px] h-[20px] text-[#6b7280]" />
           <input
@@ -72,15 +74,27 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-[16px] mb-[24px]">
         {[
           { label: "Total shops", value: shops.length },
-          { label: "Validés", value: shops.filter((s) => s.status === "validated").length },
-          { label: "En attente", value: shops.filter((s) => s.status === "pending").length },
-          { label: "Brouillon", value: shops.filter((s) => s.status === "draft").length },
+          {
+            label: "Validés",
+            value: shops.filter((s) => s.status === "validated").length,
+          },
+          {
+            label: "En attente",
+            value: shops.filter((s) => s.status === "pending_validation")
+              .length,
+          },
+          {
+            label: "Brouillon",
+            value: shops.filter((s) => s.status === "draft").length,
+          },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-[12px] p-[20px] shadow-sm">
+          <div
+            key={stat.label}
+            className="bg-white rounded-[12px] p-[20px] shadow-sm"
+          >
             <p className="font-['Space_Grotesk'] text-[14px] text-[#6b7280] mb-[8px]">
               {stat.label}
             </p>
@@ -91,7 +105,6 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
         ))}
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-[8px] mb-[24px] border-b border-[#e5e7eb] overflow-x-auto">
         {tabs.map((tab) => (
           <button
@@ -124,7 +137,6 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
         ))}
       </div>
 
-      {/* Shops Grid */}
       {filteredShops.length === 0 ? (
         <div className="bg-white rounded-[12px] p-[48px] text-center">
           <div className="max-w-[400px] mx-auto">
@@ -141,7 +153,7 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
             </p>
             {!searchQuery && (
               <button
-                onClick={() => setIsCreateModalOpen(true)}
+                onClick={onCreateShop}
                 className="bg-[#1f1f1f] text-white px-[24px] py-[12px] rounded-[12px] font-['Space_Grotesk'] hover:bg-[#2a2a2a] transition-colors"
               >
                 Créer un shop
@@ -156,15 +168,6 @@ export function ShopsView({ shops, onCreateShop, onShopClick }: ShopsViewProps) 
           ))}
         </div>
       )}
-
-      {/* Create Modal */}
-      <CreateShopModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={(shopData) => {
-          onCreateShop(shopData);
-        }}
-      />
     </div>
   );
 }

@@ -1,46 +1,111 @@
-"use client"
-import { Store, LayoutDashboard, Settings, LogOut, Building2, Users, FileCheck, UserCheck } from "lucide-react";
-// import imgAvatar from "figma:asset/901ee08311ad77715bb249b2f460a7602bbd72cc.png";
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Store,
+  LayoutDashboard,
+  Settings,
+  LogOut,
+  Building2,
+  Users,
+  FileCheck,
+  UserCheck,
+} from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+
+type UserRole = "admin" | "shop";
 
 interface SidebarProps {
-  currentView: string;
-  onNavigate: (view: string) => void;
-  userRole: "manager" | "admin";
+  userRole: UserRole;
   userName: string;
 }
 
-export function Sidebar({ currentView, onNavigate, userRole, userName }: SidebarProps) {
-  const navigationSections = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: any;
+  roles: UserRole[];
+};
+
+type NavSection = {
+  title: string;
+  items: NavItem[];
+};
+
+export function Sidebar({ userRole, userName }: SidebarProps) {
+  const pathname = usePathname();
+
+  const router = useRouter();
+
+  const onLogout = async () => {
+    await authClient.signOut();
+    router.replace("/login");
+  };
+
+  const sections: NavSection[] = [
     {
       title: "Gestion",
       items: [
-        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["manager", "admin"] },
-        { id: "shops", label: "Mes shops", icon: Store, roles: ["manager"] },
-        { id: "organizations", label: "Mes Organisations", icon: Building2, roles: ["manager"] },
-        { id: "partners", label: "Mes Partenaires", icon: Users, roles: ["manager"] },
+        {
+          href: userRole === "admin" ? "/admin/dashboard" : "/shop",
+          label: "Dashboard",
+          icon: LayoutDashboard,
+          roles: ["admin", "shop"],
+        },
+        {
+          href: "/shop/shops",
+          label: "Mes shops",
+          icon: Store,
+          roles: ["shop"],
+        },
+        {
+          href: "/shop/organizations",
+          label: "Mes Organisations",
+          icon: Building2,
+          roles: ["shop"],
+        },
+        {
+          href: "/shop/partners",
+          label: "Mes Partenaires",
+          icon: Users,
+          roles: ["shop"],
+        },
       ],
     },
     {
       title: "Administration",
       items: [
-        { id: "admin-users", label: "Gestion Utilisateurs", icon: UserCheck, roles: ["admin"] },
-        { id: "admin-shops", label: "Gestion Boutiques", icon: FileCheck, roles: ["admin"] },
+        {
+          href: "/admin/users",
+          label: "Gestion Utilisateurs",
+          icon: UserCheck,
+          roles: ["admin"],
+        },
+        {
+          href: "/admin/shops",
+          label: "Gestion Boutiques",
+          icon: FileCheck,
+          roles: ["admin"],
+        },
       ],
     },
   ];
 
+  const isActive = (href: string) => {
+    if (href === "/shop" || href === "/admin") {
+      return pathname === href;
+    }
+
+    return pathname === href || pathname.startsWith(href + "/");
+  };
+
   return (
-    <div className="bg-[#1a1d29] flex flex-col h-screen w-[225px] shrink-0">
+    <aside className="bg-[#1a1d29] flex flex-col h-screen w-[225px] shrink-0">
       {/* User Profile */}
       <div className="box-border px-[16px] py-[16px] border-b border-[#2a2e3f]">
         <div className="flex gap-[12px] items-center">
-          <div className="relative h-[40px] w-[40px] rounded-[8px] overflow-hidden shrink-0">
-            {/* <img 
-              src={imgAvatar} 
-              alt={userName}
-              className="w-full h-full object-cover"
-            /> */}
-          </div>
+          <div className="relative h-[40px] w-[40px] rounded-[8px] overflow-hidden shrink-0" />
           <div className="flex flex-col flex-1 min-w-0">
             <p className="font-['Space_Grotesk'] font-medium text-[13px] text-white truncate">
               {userName}
@@ -54,31 +119,30 @@ export function Sidebar({ currentView, onNavigate, userRole, userName }: Sidebar
 
       {/* Navigation */}
       <nav className="flex-1 box-border px-[16px] py-[20px] overflow-y-auto">
-        {navigationSections.map((section) => {
-          const sectionItems = section.items.filter((item) =>
-            item.roles.includes(userRole)
-          );
-
-          if (sectionItems.length === 0) return null;
+        {sections.map((section) => {
+          const items = section.items.filter((i) => i.roles.includes(userRole));
+          if (items.length === 0) return null;
 
           return (
             <div key={section.title} className="mb-[24px]">
               <p className="font-['Space_Grotesk'] text-[11px] text-[#FFBF00] uppercase tracking-wider mb-[12px]">
                 {section.title}
               </p>
+
               <div className="flex flex-col gap-[2px]">
-                {sectionItems.map((item) => {
+                {items.map((item) => {
                   const Icon = item.icon;
-                  const isActive = currentView === item.id;
+                  const active = isActive(item.href);
+
                   return (
-                    <button
-                      key={item.id}
-                      onClick={() => onNavigate(item.id)}
+                    <Link
+                      key={item.href}
+                      href={item.href}
                       className={`
-                        flex items-center gap-[12px] px-[12px] py-[10px] rounded-[6px] 
+                        flex items-center gap-[12px] px-[12px] py-[10px] rounded-[6px]
                         transition-colors w-full text-left
                         ${
-                          isActive
+                          active
                             ? "bg-[#2a2e3f] text-white"
                             : "text-[#8f92a1] hover:bg-[#2a2e3f] hover:text-white"
                         }
@@ -88,7 +152,7 @@ export function Sidebar({ currentView, onNavigate, userRole, userName }: Sidebar
                       <span className="font-['Space_Grotesk'] text-[13px]">
                         {item.label}
                       </span>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
@@ -99,13 +163,15 @@ export function Sidebar({ currentView, onNavigate, userRole, userName }: Sidebar
 
       {/* Bottom Actions */}
       <div className="box-border px-[16px] py-[16px] border-t border-[#2a2e3f]">
-        <button
-          onClick={() => onNavigate("settings")}
+        <Link
+          href={userRole === "admin" ? "/admin/settings" : "/shop/settings"}
           className={`
-            flex items-center gap-[12px] px-[12px] py-[10px] rounded-[6px] 
+            flex items-center gap-[12px] px-[12px] py-[10px] rounded-[6px]
             transition-colors w-full text-left mb-[4px]
             ${
-              currentView === "settings"
+              isActive(
+                userRole === "admin" ? "/admin/settings" : "/shop/settings",
+              )
                 ? "bg-[#2a2e3f] text-white"
                 : "text-[#8f92a1] hover:bg-[#2a2e3f] hover:text-white"
             }
@@ -113,12 +179,18 @@ export function Sidebar({ currentView, onNavigate, userRole, userName }: Sidebar
         >
           <Settings className="w-[18px] h-[18px]" />
           <span className="font-['Space_Grotesk'] text-[13px]">Paramètres</span>
-        </button>
+        </Link>
+
         <button className="flex items-center gap-[12px] px-[12px] py-[10px] rounded-[6px] text-[#8f92a1] hover:bg-[#2a2e3f] hover:text-white transition-colors w-full text-left">
           <LogOut className="w-[18px] h-[18px]" />
-          <span className="font-['Space_Grotesk'] text-[13px]">Déconnexion</span>
+          <span
+            className="font-['Space_Grotesk'] text-[13px]"
+            onClick={onLogout}
+          >
+            Déconnexion
+          </span>
         </button>
       </div>
-    </div>
+    </aside>
   );
 }
