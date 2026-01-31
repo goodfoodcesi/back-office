@@ -3,7 +3,6 @@ import { authClient } from "@/lib/auth-client";
 import { cookies } from "next/headers";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SHOP_BASE_URL;
-if (!BASE_URL) throw new Error("Missing SHOP_API_BASE_URL");
 
 type FetchOptions = Omit<RequestInit, "headers"> & {
   headers?: Record<string, string>;
