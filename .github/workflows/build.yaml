@@ -37,7 +37,6 @@ jobs:
           IMAGE="rg.fr-par.scw.cloud/${{ secrets.SCW_NAMESPACE }}/${{ github.event.repository.name }}"
           echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
 
-          # Déduire l'env/overlay à partir de la branche
           if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "OVERLAY=production" >> $GITHUB_ENV
           else

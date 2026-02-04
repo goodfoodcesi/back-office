@@ -15,10 +15,20 @@ export function ImageWithFallback(
       style={style}
     >
       <div className="flex items-center justify-center w-full h-full">
-        <Image src={ERROR_IMG_SRC} alt="Error loading image" />
+        <Image
+          src={ERROR_IMG_SRC}
+          alt="Error loading image"
+          height={48}
+          width={48}
+        />
       </div>
     </div>
   ) : (
-    "Error"
+    <Image
+      src={ERROR_IMG_SRC}
+      alt="Error loading image"
+      height={48}
+      width={48}
+    />
   );
 }

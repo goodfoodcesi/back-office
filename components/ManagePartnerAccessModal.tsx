@@ -110,8 +110,7 @@ export function ManagePartnerAccessModal({
                       <div className="w-[48px] h-[48px] rounded-[8px] overflow-hidden shrink-0">
                         <Image
                           src={
-                            shop.coverImage ||
-                            "https://placehold.co/600x400/000000/FFFFFF.png"
+                            shop.coverImage || "https://example.com/image.jpg"
                           }
                           alt={shop.name}
                           className="w-full h-full object-cover"
