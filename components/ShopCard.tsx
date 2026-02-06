@@ -1,7 +1,8 @@
 // ShopCard.tsx (mêmes styles, juste data + fallback)
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { StatusBadge } from "./StatusBadge";
-import { MapPin, Clock } from "lucide-react";
+import { MapPin, Clock, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export interface Shop {
   id: string;
@@ -14,13 +15,13 @@ export interface Shop {
   country?: string | null;
 
   status:
-    | "draft"
-    | "pending_validation"
-    | "validated"
-    | "rejected"
-    | "action_required"
-    | "visible"
-    | "hidden";
+  | "draft"
+  | "pending_validation"
+  | "validated"
+  | "rejected"
+  | "action_required"
+  | "visible"
+  | "hidden";
 
   // backend: logo / coverImage (ou rien)
   logo?: string | null;
@@ -73,8 +74,14 @@ export function ShopCard({
   onRefuse,
   onRequestInfo,
 }: ShopCardProps) {
+  const router = useRouter();
   const addressText = buildAddress(shop) || "Adresse non renseignée";
   const imageUrl = shop.coverImage || shop.logo || FALLBACK_IMAGE;
+
+  const handleViewOrders = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/shop/shops/${shop.id}/orders`);
+  };
 
   console.log("les info dans shop card oooooo: ", shop);
 
@@ -134,6 +141,17 @@ export function ShopCard({
           </div>
         )}
 
+        {/* View Orders Button for validated shops */}
+        {["validated", "visible"].includes(shop.status) && !showAdminActions && (
+          <button
+            onClick={handleViewOrders}
+            className="w-full bg-[#FFBF00] text-[#1f1f1f] px-[12px] py-[8px] rounded-[8px] font-['Space_Grotesk'] text-[14px] hover:bg-[#e6ac00] transition-colors flex items-center justify-center gap-[8px] mb-[12px]"
+          >
+            <ShoppingBag className="w-[16px] h-[16px]" />
+            Voir les commandes
+          </button>
+        )}
+
         {/* Admin Actions */}
         {showAdminActions && shop.status === "pending_validation" && (
           <div className="flex gap-[8px] mt-[12px]">
@@ -167,6 +185,6 @@ export function ShopCard({
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 }
