@@ -1,6 +1,6 @@
 "use server";
 
-import { authClient } from "@/lib/auth-client";
+import { cookies } from "next/headers";
 
 export type CreateShopState = {
   ok: boolean;
@@ -25,12 +25,8 @@ export async function createShopAction(
   form: FormData
 ): Promise<CreateShopState> {
   // 1) Récupérer un JWT côté serveur (ne JAMAIS le faire côté client)
-  const { data: tokenData, error: tokenError } = await authClient.token();
-  const token = tokenData?.token;
-
-  if (tokenError || !token) {
-    return initialError("Non authentifié. Veuillez vous reconnecter.");
-  }
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore.toString();
 
   // 2) Lire les champs du form
   const name = String(form.get("name") ?? "").trim();
@@ -58,7 +54,7 @@ export async function createShopAction(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        "Cookie": cookieHeader,
       },
       body: JSON.stringify(payload),
       cache: "no-store",
