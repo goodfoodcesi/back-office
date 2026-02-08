@@ -17,16 +17,24 @@ export async function shopApiFetch<T>(
   // 2. Request headers (for Server Actions called from client)
   // 3. Server cookies (fallback)
   let cookieHeader = options.cookieHeader;
+  let cookieSource = "none";
 
-  if (!cookieHeader) {
+  if (cookieHeader) {
+    cookieSource = "explicit";
+  } else {
     try {
       const headersList = await headers();
       cookieHeader = headersList.get("cookie") || "";
+      cookieSource = cookieHeader ? "headers" : "headers-empty";
     } catch {
       // If headers() fails, fallback to cookies()
       cookieHeader = (await cookies()).toString();
+      cookieSource = cookieHeader ? "cookies" : "cookies-empty";
     }
   }
+
+  console.log(`[shopApiFetch] ${path} - source: ${cookieSource}, hasCookie: ${!!cookieHeader}`);
+
 
   const { cookieHeader: _, ...fetchOptions } = options;
 
