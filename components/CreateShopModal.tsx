@@ -25,8 +25,13 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
       const payload = {
         name: String(formData.get("name") ?? ""),
         description: String(formData.get("description") ?? ""),
-        address: String(formData.get("address") ?? ""),
         category: String(formData.get("category") ?? ""),
+        address: String(formData.get("address") ?? ""),
+        city: String(formData.get("city") ?? ""),
+        zipCode: String(formData.get("zipCode") ?? ""),
+        country: String(formData.get("country") ?? ""),
+        phone: String(formData.get("phone") ?? ""),
+        siret: String(formData.get("siret") ?? ""),
         imageUrl: String(formData.get("imageUrl") ?? ""),
       };
 
