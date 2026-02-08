@@ -15,7 +15,7 @@ export default function ProtectedShell({ children }: { children: React.ReactNode
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
-    userType: string;
+    userType: AllowedUserType;
     name: string;
   } | null>(null);
 
