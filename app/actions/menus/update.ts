@@ -15,9 +15,13 @@ export async function updateMenuAction(
     options?: any[];
   }
 ) {
+  const { cookies } = await import("next/headers");
+  const cookieHeader = (await cookies()).toString();
+
   await shopApiFetch(`/shop/${shopId}/menus/${menuId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
+    cookieHeader,
   });
 
   revalidatePath(`/shop/shops/${shopId}`);

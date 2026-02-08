@@ -55,10 +55,14 @@ export async function updateShopAction(
     }
 
 
+    const { cookies } = await import("next/headers");
+    const cookieHeader = (await cookies()).toString();
+
     await shopApiFetch(`/shop/${shopId}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
       headers: { "Content-Type": "application/json" },
+      cookieHeader,
     });
 
 

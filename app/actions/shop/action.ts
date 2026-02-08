@@ -25,9 +25,14 @@ export async function createShopAction(
       return { ok: false, error: "Tous les champs sont obligatoires." };
     }
 
+    // Get cookies to forward to shop-api
+    const { cookies } = await import("next/headers");
+    const cookieHeader = (await cookies()).toString();
+
     await shopApiFetch("/shop", {
       method: "POST",
       body: JSON.stringify(payload),
+      cookieHeader,
     });
 
     revalidatePath("/shop/shops");
@@ -45,8 +50,13 @@ export async function submitShopForValidationAction(formData: FormData) {
 
   if (!shopId) throw new Error("Missing shopId");
 
+  // Get cookies to forward to shop-api
+  const { cookies } = await import("next/headers");
+  const cookieHeader = (await cookies()).toString();
+
   await shopApiFetch(`/shop/${shopId}/submit`, {
     method: "POST",
+    cookieHeader,
   });
 
   revalidatePath(`/shop/shops/${shopId}`);

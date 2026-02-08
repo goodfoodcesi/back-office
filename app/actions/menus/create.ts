@@ -15,6 +15,9 @@ export async function createMenuAction(
     options?: MenuOption[];
   }
 ) {
+  const { cookies } = await import("next/headers");
+  const cookieHeader = (await cookies()).toString();
+
   await shopApiFetch("/menus", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -22,6 +25,7 @@ export async function createMenuAction(
       shopId,
       ...payload,
     }),
+    cookieHeader,
   });
 
   revalidatePath(`/shop/shops/${shopId}`);
