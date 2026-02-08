@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
-import { createShopAction } from "@/app/actions/shop/action";
-
-type State = { ok: boolean; error: string };
-const initialState: State = { ok: false, error: "" };
+import { shopApiClientFetch } from "@/lib/shop-api-client";
+import { useRouter } from "next/navigation";
 
 interface CreateShopModalProps {
   isOpen: boolean;
@@ -13,14 +11,45 @@ interface CreateShopModalProps {
 }
 
 export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
-  const [state, formAction] = React.useActionState(
-    createShopAction,
-    initialState,
-  );
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (state.ok) onClose();
-  }, [state.ok, onClose]);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const payload = {
+        name: String(formData.get("name") ?? ""),
+        description: String(formData.get("description") ?? ""),
+        address: String(formData.get("address") ?? ""),
+        category: String(formData.get("category") ?? ""),
+        imageUrl: String(formData.get("imageUrl") ?? ""),
+      };
+
+      if (Object.values(payload).some((v) => !v)) {
+        setError("Tous les champs sont obligatoires.");
+        setLoading(false);
+        return;
+      }
+
+      await shopApiClientFetch("/shop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      router.refresh();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur serveur");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -39,10 +68,7 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
           </button>
         </div>
 
-        <form action={formAction} className="p-[24px]">
-          {/* Hidden field to pass cookies to Server Action */}
-          <input type="hidden" name="__cookies" value={typeof document !== 'undefined' ? document.cookie : ''} />
-          
+        <form onSubmit={handleSubmit} className="p-[24px]">
           <div className="flex flex-col gap-[16px]">
             <div>
               <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
@@ -114,23 +140,25 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
             </div>
           </div>
 
-          {state.error && (
-            <p className="text-red-600 mt-[16px]">{state.error}</p>
+          {error && (
+            <p className="text-red-600 mt-[16px]">{error}</p>
           )}
 
           <div className="flex gap-[12px] mt-[24px]">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-[#e5e7eb] text-[#1f1f1f] px-[16px] py-[12px] rounded-[12px]"
+              disabled={loading}
+              className="flex-1 bg-[#e5e7eb] text-[#1f1f1f] px-[16px] py-[12px] rounded-[12px] disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="flex-1 bg-[#1f1f1f] text-white px-[16px] py-[12px] rounded-[12px]"
+              disabled={loading}
+              className="flex-1 bg-[#1f1f1f] text-white px-[16px] py-[12px] rounded-[12px] disabled:opacity-50"
             >
-              Créer le shop
+              {loading ? "Création..." : "Créer le shop"}
             </button>
           </div>
         </form>
