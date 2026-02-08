@@ -25,9 +25,8 @@ export async function createShopAction(
       return { ok: false, error: "Tous les champs sont obligatoires." };
     }
 
-    // Get cookies to forward to shop-api
-    const { cookies } = await import("next/headers");
-    const cookieHeader = (await cookies()).toString();
+    // Get cookies from formData (passed from client)
+    const cookieHeader = String(formData.get("__cookies") ?? "");
 
     await shopApiFetch("/shop", {
       method: "POST",

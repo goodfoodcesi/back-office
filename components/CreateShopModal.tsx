@@ -40,6 +40,9 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
         </div>
 
         <form action={formAction} className="p-[24px]">
+          {/* Hidden field to pass cookies to Server Action */}
+          <input type="hidden" name="__cookies" value={typeof document !== 'undefined' ? document.cookie : ''} />
+          
           <div className="flex flex-col gap-[16px]">
             <div>
               <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
