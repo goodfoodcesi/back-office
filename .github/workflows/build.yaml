@@ -52,6 +52,12 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:sha-${{ env.SHA_SHORT }}
             ${{ env.IMAGE }}:latest
+          build-args: |
+            NEXT_PUBLIC_API_URL=http://preprod-api.goodfood.ovh
+            NEXT_PUBLIC_AUTH_BASE_URL=http://preprod-api.goodfood.ovh/auth
+            NEXT_PUBLIC_ORDER_API_URL=http://preprod-api.goodfood.ovh/order
+            NEXT_PUBLIC_SHOP_BASE_URL=http://preprod-api.goodfood.ovh/shop
+            NEXT_PUBLIC_WS_URL=ws://preprod-api.goodfood.ovh/order/ws
 
       - name: 🔄 Update K3S image tag in infra repo
         env:
