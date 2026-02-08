@@ -1,5 +1,5 @@
 "use server"
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SHOP_BASE_URL;
 
@@ -12,8 +12,21 @@ export async function shopApiFetch<T>(
   path: string,
   options: FetchOptions = {}
 ): Promise<T> {
-  // Use provided cookieHeader or fallback to server cookies
-  const cookieHeader = options.cookieHeader || (await cookies()).toString();
+  // Try to get cookies from multiple sources in order of preference:
+  // 1. Explicitly provided cookieHeader
+  // 2. Request headers (for Server Actions called from client)
+  // 3. Server cookies (fallback)
+  let cookieHeader = options.cookieHeader;
+
+  if (!cookieHeader) {
+    try {
+      const headersList = await headers();
+      cookieHeader = headersList.get("cookie") || "";
+    } catch {
+      // If headers() fails, fallback to cookies()
+      cookieHeader = (await cookies()).toString();
+    }
+  }
 
   const { cookieHeader: _, ...fetchOptions } = options;
 

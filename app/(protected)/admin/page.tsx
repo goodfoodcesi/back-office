@@ -1,14 +1,25 @@
-import { shopApiFetch } from "@/lib/shop-api";
+"use client"
+
+import { shopApiClientFetch } from "@/lib/shop-api-client";
 import { AdminReviewView } from "@/components/AdminReviewView";
 import {
   approveShopAction,
   rejectShopAction,
   requestInfoShopAction,
 } from "@/app/actions/admin/shop";
+import { useEffect, useState } from "react";
 
-export default async function AdminPage() {
-  const res = await shopApiFetch<{ data: any[] }>("/admin/shops");
-  const shops = res.data;
+export default function AdminPage() {
+  const [shops, setShops] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    shopApiClientFetch<{ data: any[] }>("/admin/shops")
+      .then((res) => setShops(res.data))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p>Chargement...</p>;
 
   return (
     <AdminReviewView
