@@ -1,21 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  updateShopAction,
-  type UpdateShopState,
-} from "@/app/actions/shop/update";
 import type { ApiShopDetails, ApiWeekSchedule } from "@/types/shop";
 import type { MenuItemApi, MenuOption } from "@/types/menus";
 import { ShopMenus } from "@/components/ShopMenus";
-import { createMenuAction } from "@/app/actions/menus/create";
-import { updateMenuAction } from "@/app/actions/menus/update";
-import { deleteMenuAction } from "@/app/actions/menus/delete";
 import { TimeField } from "@/components/TimeField";
-import { submitShopForValidationAction } from "@/app/actions/shop/action";
-
-const initialUpdateState: UpdateShopState = { ok: false, error: "" };
+import { shopApiClientFetch } from "@/lib/shop-api-client";
+import { toast } from "sonner";
 
 function dayLabel(k: keyof ApiWeekSchedule) {
   return {
@@ -47,26 +39,13 @@ export function ShopDetailsClient({
   menus: MenuItemApi[];
 }) {
   const router = useRouter();
-
-  const boundUpdate = React.useMemo(
-    () => updateShopAction.bind(null, shop.id),
-    [shop.id],
-  );
-  const [updateState, updateFormAction, updating] = React.useActionState(
-    boundUpdate,
-    initialUpdateState,
-  );
-
-  const [schedule, setSchedule] = React.useState<ApiWeekSchedule>(
+  const [updating, setUpdating] = useState(false);
+  const [schedule, setSchedule] = useState<ApiWeekSchedule>(
     () => shop.schedule ?? ({} as ApiWeekSchedule),
   );
-  const [activeTab, setActiveTab] = React.useState<
+  const [activeTab, setActiveTab] = useState<
     "general" | "schedule" | "menus"
   >("general");
-
-  React.useEffect(() => {
-    if (updateState.ok) router.refresh();
-  }, [updateState.ok, router]);
 
   const uiMenus = React.useMemo(
     () =>
@@ -83,51 +62,148 @@ export function ShopDetailsClient({
     [menus],
   );
 
+  const handleGeneralUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUpdating(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const payload: any = {};
+
+      const name = String(formData.get("name") ?? "").trim();
+      if (name) payload.name = name;
+
+      const email = String(formData.get("email") ?? "").trim();
+      if (email) payload.email = email;
+
+      const phone = String(formData.get("phone") ?? "").trim();
+      if (phone) payload.phone = phone;
+
+      const address = String(formData.get("address") ?? "").trim();
+      if (address) payload.address = address;
+
+      const city = String(formData.get("city") ?? "").trim();
+      if (city) payload.city = city;
+
+      const zipCode = String(formData.get("zipCode") ?? "").trim();
+      if (zipCode) payload.zipCode = zipCode;
+
+      await shopApiClientFetch(`/shop/${shop.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      toast.success("Informations mises à jour");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la mise à jour");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleScheduleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUpdating(true);
+
+    try {
+      await shopApiClientFetch(`/shop/${shop.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ schedule }),
+      });
+
+      toast.success("Horaires mis à jour");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la mise à jour");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleSubmitForValidation = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUpdating(true);
+
+    try {
+      await shopApiClientFetch(`/shop/${shop.id}/submit`, {
+        method: "POST",
+      });
+
+      toast.success("Shop soumis à validation");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la soumission");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const handleMenusUpdate = async (nextMenus: any[]) => {
     const existingIds = new Set(menus.map((m) => m.id));
 
-    for (const menu of nextMenus) {
-      if (!menu.id || !existingIds.has(menu.id)) {
-        await createMenuAction(shop.id, {
-          name: menu.name,
-          description: menu.description,
-          category: menu.category,
-          price: String(menu.price),
-          stock: menu.available ? (menu._stock ?? 0) : 0,
-          options: menu._options ?? [],
-        });
-        continue;
+    try {
+      for (const menu of nextMenus) {
+        if (!menu.id || !existingIds.has(menu.id)) {
+          // Create new menu
+          await shopApiClientFetch("/menus", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              shopId: shop.id,
+              name: menu.name,
+              description: menu.description,
+              category: menu.category,
+              price: String(menu.price),
+              stock: menu.available ? (menu._stock ?? 0) : 0,
+              options: menu._options ?? [],
+            }),
+          });
+          continue;
+        }
+
+        const original = menus.find((m) => m.id === menu.id);
+        if (!original) continue;
+
+        const changed =
+          original.name !== menu.name ||
+          original.description !== menu.description ||
+          original.category !== menu.category ||
+          Number(original.price) !== Number(menu.price) ||
+          Number(original.stock) !== Number(menu._stock);
+
+        if (changed) {
+          await shopApiClientFetch(`/shop/${shop.id}/menus/${menu.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: menu.name,
+              description: menu.description,
+              category: menu.category,
+              price: String(menu.price),
+              stock: menu.available ? (menu._stock ?? 0) : 0,
+              options: menu._options ?? [],
+            }),
+          });
+        }
       }
 
-      const original = menus.find((m) => m.id === menu.id);
-      if (!original) continue;
-
-      const changed =
-        original.name !== menu.name ||
-        original.description !== menu.description ||
-        original.category !== menu.category ||
-        Number(original.price) !== Number(menu.price) ||
-        Number(original.stock) !== Number(menu._stock);
-
-      if (changed) {
-        await updateMenuAction(menu.id, shop.id, {
-          name: menu.name,
-          description: menu.description,
-          category: menu.category,
-          price: String(menu.price),
-          stock: menu.available ? (menu._stock ?? 0) : 0,
-          options: menu._options ?? [],
-        });
+      // Delete removed menus
+      for (const m of menus) {
+        if (!nextMenus.find((nm) => nm.id === m.id)) {
+          await shopApiClientFetch(`/menus/${m.id}`, {
+            method: "DELETE",
+          });
+        }
       }
+
+      toast.success("Menus mis à jour");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la mise à jour des menus");
     }
-
-    for (const m of menus) {
-      if (!nextMenus.find((nm) => nm.id === m.id)) {
-        await deleteMenuAction(m.id, shop.id);
-      }
-    }
-
-    router.refresh();
   };
 
   return (
@@ -166,69 +242,52 @@ export function ShopDetailsClient({
         </TabButton>
       </div>
 
-{activeTab === "general" && (
-  <>
-    {/* FORM UPDATE SHOP */}
-    <form
-      action={updateFormAction}
-      className="bg-white border rounded-xl p-6 space-y-4"
-    >
-      <input
-        type="hidden"
-        name="scheduleJson"
-        value={JSON.stringify(schedule)}
-      />
+      {activeTab === "general" && (
+        <>
+          {/* FORM UPDATE SHOP */}
+          <form
+            onSubmit={handleGeneralUpdate}
+            className="bg-white border rounded-xl p-6 space-y-4"
+          >
+            <Field label="Nom" name="name" defaultValue={shop.name ?? ""} required />
+            <Field label="Email" name="email" defaultValue={shop.email ?? ""} />
+            <Field label="Téléphone" name="phone" defaultValue={shop.phone ?? ""} />
+            <Field label="Adresse" name="address" defaultValue={shop.address ?? ""} />
+            <Field label="Ville" name="city" defaultValue={shop.city ?? ""} />
+            <Field label="Code postal" name="zipCode" defaultValue={shop.zipCode ?? ""} />
 
-      <Field label="Nom" name="name" defaultValue={shop.name ?? ""} required />
-      <Field label="Email" name="email" defaultValue={shop.email ?? ""} />
-      <Field label="Téléphone" name="phone" defaultValue={shop.phone ?? ""} />
-      <Field label="Adresse" name="address" defaultValue={shop.address ?? ""} />
-      <Field label="Ville" name="city" defaultValue={shop.city ?? ""} />
-      <Field label="Code postal" name="zipCode" defaultValue={shop.zipCode ?? ""} />
+            <button
+              type="submit"
+              disabled={updating}
+              className="px-4 py-2 bg-black text-white rounded disabled:opacity-50"
+            >
+              {updating ? "Enregistrement…" : "Enregistrer"}
+            </button>
+          </form>
 
-      <button
-        disabled={updating}
-        className="px-4 py-2 bg-black text-white rounded"
-      >
-        {updating ? "Enregistrement…" : "Enregistrer"}
-      </button>
-
-      {updateState.error && (
-        <p className="text-red-600">{updateState.error}</p>
+          {/* FORM SUBMIT FOR VALIDATION */}
+          {(shop.status === "draft" || shop.status === "action_required") && (
+            <form
+              onSubmit={handleSubmitForValidation}
+              className="mt-4"
+            >
+              <button
+                type="submit"
+                disabled={updating}
+                className="px-4 py-2 bg-[#FFBF00] text-black rounded font-medium disabled:opacity-50"
+              >
+                Soumettre à validation
+              </button>
+            </form>
+          )}
+        </>
       )}
-    </form>
-
-    {/* FORM SUBMIT FOR VALIDATION */}
-    {(shop.status === "draft" || shop.status === "action_required") && (
-      <form
-        action={submitShopForValidationAction}
-        className="mt-4"
-      >
-        <input type="hidden" name="shopId" value={shop.id} />
-
-        <button
-          type="submit"
-          className="px-4 py-2 bg-[#FFBF00] text-black rounded font-medium"
-        >
-          Soumettre à validation
-        </button>
-      </form>
-    )}
-  </>
-)}
-
 
       {activeTab === "schedule" && (
         <form
-          action={updateFormAction}
+          onSubmit={handleScheduleUpdate}
           className="bg-white border rounded-xl p-6 space-y-6"
         >
-          <input
-            type="hidden"
-            name="scheduleJson"
-            value={JSON.stringify(schedule)}
-          />
-
           {daysOrder.map((day) => {
             const d = schedule[day] ?? { isOpen: false };
 
@@ -308,10 +367,11 @@ export function ShopDetailsClient({
           })}
 
           <button
+            type="submit"
             disabled={updating}
-            className="px-4 py-2 bg-black text-white rounded"
+            className="px-4 py-2 bg-black text-white rounded disabled:opacity-50"
           >
-            Enregistrer les horaires
+            {updating ? "Enregistrement…" : "Enregistrer les horaires"}
           </button>
         </form>
       )}
