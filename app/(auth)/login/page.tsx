@@ -1,50 +1,37 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { InputEmail, GoodFoodButton, Logo } from "@goodfoodcesi/goodfood-ui";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { redirect } from "next/navigation";
-import { useRouter } from "next/navigation";
-
-type FormState = {
-  error?: string;
-  submitted: boolean;
-};
-
-const initialState: FormState = { error: undefined, submitted: false };
-
-async function loginAction(_: FormState, form: FormData): Promise<FormState> {
-  const email = String(form.get("email") ?? "");
-  const password = String(form.get("password") ?? "");
-
-  const { data, error } = await authClient.signIn.email({
-    email,
-    password,
-  });
-
-  if (error) {
-    return {
-      error: error.message ?? "Identifiants invalides.",
-      submitted: true,
-    };
-  }
-
-  if (!data) {
-    return { error: "Une erreur est survenue.", submitted: true };
-  }
-  return { error: undefined, submitted: true };
-}
 
 export default function LoginPage() {
-  const [state, formAction] = React.useActionState(loginAction, initialState);
-  const router = useRouter();
+  const [error, setError] = React.useState<string | undefined>();
+  const [loading, setLoading] = React.useState(false);
 
-  useEffect(() => {
-    if (state.error === undefined && state.submitted === true) {
-      router.replace("/redirect");
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(undefined);
+
+    const formData = new FormData(e.currentTarget);
+    const email = String(formData.get("email") ?? "");
+    const password = String(formData.get("password") ?? "");
+
+    const { data, error: loginError } = await authClient.signIn.email({
+      email,
+      password,
+      callbackURL: "/redirect",
+    });
+
+    if (loginError) {
+      setError(loginError.message ?? "Identifiants invalides.");
+      setLoading(false);
+      return;
     }
-  }, [state.submitted, state.error, router]);
+
+    // Better-Auth redirige automatiquement vers callbackURL
+  }
 
   return (
     <div className="space-y-6">
@@ -58,7 +45,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="space-y-4" action={formAction}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <InputEmail name="email" label="Email" placeholder="test@test.com" />
         </div>
@@ -85,13 +72,13 @@ export default function LoginPage() {
           variant="solid"
           color="alt"
           className="w-full"
+          disabled={loading}
         >
-          Sign in
+          {loading ? "Connexion..." : "Sign in"}
         </GoodFoodButton>
       </form>
-      {state.submitted && state.error && (
-        <span className="text-red-600 p-2">{state.error}</span>
-      )}
+
+      {error && <span className="text-red-600 p-2">{error}</span>}
 
       <div className="w-full h-[1px] bg-[var(--color-gray-200)]"></div>
 

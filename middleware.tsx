@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // pages publiques
-  const publicPaths = ["/login", "/signup"];
+  const publicPaths = ["/login", "/signup", "/redirect"];
   const isPublicPath = publicPaths.some((p) => pathname.startsWith(p));
 
   if (!token && !isPublicPath) {
