@@ -5,19 +5,23 @@ const BASE_URL = process.env.NEXT_PUBLIC_SHOP_BASE_URL;
 
 type FetchOptions = Omit<RequestInit, "headers"> & {
   headers?: Record<string, string>;
+  cookieHeader?: string; // Optional cookie header from client
 };
 
 export async function shopApiFetch<T>(
   path: string,
   options: FetchOptions = {}
 ): Promise<T> {
-  const cookieHeader = (await cookies()).toString();
+  // Use provided cookieHeader or fallback to server cookies
+  const cookieHeader = options.cookieHeader || (await cookies()).toString();
+
+  const { cookieHeader: _, ...fetchOptions } = options;
 
   const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
+    ...fetchOptions,
     headers: {
-      ...(options.headers ?? {}),
-      Cookie: cookieHeader,
+      ...(fetchOptions.headers ?? {}),
+      ...(cookieHeader ? { Cookie: cookieHeader } : {}),
     },
     cache: "no-store",
   });
