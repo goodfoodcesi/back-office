@@ -1,29 +1,56 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/session";
+"use client";
 
-export default async function RedirectPage() {
-  console.log("🔍 Page redirect - Checking user...");
+import { authClient } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-  const user = await getCurrentUser();
+type User = {
+  userType: "admin" | "shop" | string;
+};
 
-  console.log("👤 User trouvé:", user);
+export default function RedirectPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    console.log("❌ Pas d'user, redirect vers login");
-    redirect("/login");
+  useEffect(() => {
+    const checkSession = async () => {
+      console.log("🔍 /redirect - Vérification de la session...");
+      console.log("🍪 Cookies disponibles:", document.cookie);
+      
+      const result = await authClient.getSession();
+      
+      console.log("📊 Résultat getSession:", result);
+
+      if (result.error || !result.data?.user) {
+        console.error("❌ Pas de session valide, redirection vers /login");
+        router.replace("/login");
+        return;
+      }
+
+      const user = result.data.user as User;
+      console.log("✅ Session valide, user:", user);
+
+      switch (user.userType) {
+        case "admin":
+          console.log("🔄 Redirection vers /admin");
+          router.replace("/admin");
+          break;
+        case "shop":
+          console.log("🔄 Redirection vers /shop");
+          router.replace("/shop");
+          break;
+        default:
+          console.log("❌ Type d'utilisateur invalide:", user.userType);
+          router.replace("/login");
+      }
+    };
+
+    checkSession().finally(() => setLoading(false));
+  }, [router]);
+
+  if (loading) {
+    return <p>Redirection...</p>;
   }
 
-  console.log("✅ User type:", user.userType);
-
-  switch (user.userType) {
-    case "admin":
-      console.log("➡️ Redirect vers /admin/");
-      redirect("/admin/");
-    case "shop":
-      console.log("➡️ Redirect vers /shop/");
-      redirect("/shop/");
-    default:
-      console.log("❌ Type inconnu, redirect vers login");
-      redirect("/login");
-  }
+  return null;
 }

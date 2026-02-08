@@ -18,19 +18,29 @@ export default function LoginPage() {
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
 
-    const { data, error: loginError } = await authClient.signIn.email({
+    console.log("🔐 Tentative de login avec:", email);
+    console.log("📡 API URL:", process.env.NEXT_PUBLIC_AUTH_BASE_URL);
+
+    const { error: loginError, data } = await authClient.signIn.email({
       email,
       password,
-      callbackURL: "/redirect",
     });
 
+    console.log("📊 Résultat du login:", { error: loginError, data });
+
     if (loginError) {
+      console.error("❌ Erreur de login:", loginError);
       setError(loginError.message ?? "Identifiants invalides.");
       setLoading(false);
       return;
     }
 
-    // Better-Auth redirige automatiquement vers callbackURL
+    console.log("✅ Login réussi, vérification des cookies...");
+    console.log("🍪 Cookies actuels:", document.cookie);
+
+    // Login réussi → full page reload pour que le cookie soit envoyé au serveur
+    console.log("🔄 Redirection vers /redirect");
+    window.location.href = "/redirect";
   }
 
   return (
