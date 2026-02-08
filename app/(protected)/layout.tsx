@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
-import { cookies } from "next/headers";
+import { getCurrentUser } from "@/lib/session";
 import ProtectedShell from "./ProtectedShell";
 
 export default async function ProtectedLayout({
@@ -8,18 +7,18 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieHeader = (await cookies()).toString();
+  const user = await getCurrentUser();
 
-  const { data, error } = await authClient.getSession({
-    fetchOptions: { headers: { cookie: cookieHeader } },
-  });
+  if (!user) {
+    redirect("/login");
+  }
 
-  if (error || !data) redirect("/login");
-
-  if (!["admin", "shop"].includes(data.user.userType)) redirect("/login");
+  if (!["admin", "shop"].includes(user.userType)) {
+    redirect("/login");
+  }
 
   return (
-    <ProtectedShell userName={data.user.name} userType={data.user.userType}>
+    <ProtectedShell userName={user.name} userType={user.userType}>
       {children}
     </ProtectedShell>
   );

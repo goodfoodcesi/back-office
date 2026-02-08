@@ -1,25 +1,18 @@
 import { redirect } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
-import { cookies } from "next/headers";
+import { getCurrentUser } from "@/lib/session";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieHeader = (await cookies()).toString();
-  const { data, error } = await authClient.getSession({
-    fetchOptions: {
-      headers: {
-        cookie: cookieHeader,
-      },
-    },
-  });
-  if (error || !data) {
+  const user = await getCurrentUser();
+
+  if (!user) {
     redirect("/login");
   }
 
-  if (data.user.userType !== "admin") {
+  if (user.userType !== "admin") {
     redirect("/shop/dashboard");
   }
 
