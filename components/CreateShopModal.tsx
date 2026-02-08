@@ -126,7 +126,71 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
               <input
                 name="address"
                 required
-                placeholder="Ex: 123 Rue de la République, Paris"
+                placeholder="Ex: 123 Rue de la République"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
+              />
+            </div>
+
+            <div>
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
+                Ville *
+              </label>
+              <input
+                name="city"
+                required
+                placeholder="Ex: Paris"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
+              />
+            </div>
+
+            <div>
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
+                Code postal *
+              </label>
+              <input
+                name="zipCode"
+                required
+                placeholder="Ex: 75001"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
+              />
+            </div>
+
+            <div>
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
+                Pays *
+              </label>
+              <input
+                name="country"
+                required
+                placeholder="Ex: France"
+                defaultValue="France"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
+              />
+            </div>
+
+            <div>
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
+                Téléphone *
+              </label>
+              <input
+                name="phone"
+                type="tel"
+                required
+                placeholder="Ex: 01 23 45 67 89"
+                className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
+              />
+            </div>
+
+            <div>
+              <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
+                SIRET *
+              </label>
+              <input
+                name="siret"
+                required
+                placeholder="Ex: 12345678901234"
+                minLength={14}
+                maxLength={14}
                 className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
               />
             </div>
