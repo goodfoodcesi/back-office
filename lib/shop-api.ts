@@ -38,6 +38,13 @@ export async function shopApiFetch<T>(
 
   const { cookieHeader: _, ...fetchOptions } = options;
 
+  /* 
+    En préprod/dev avec certificats auto-signés, on doit ignorer l'erreur SSL côté serveur Node.
+    Comme ce fichier est "use server", il tourne toujours côté serveur Node.js.
+  */
+  const { Agent } = await import('https');
+  const agent = new Agent({ rejectUnauthorized: false });
+
   const res = await fetch(`${BASE_URL}${path}`, {
     ...fetchOptions,
     headers: {
@@ -45,7 +52,8 @@ export async function shopApiFetch<T>(
       ...(cookieHeader ? { Cookie: cookieHeader } : {}),
     },
     cache: "no-store",
-  });
+    agent,
+  } as RequestInit);
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
