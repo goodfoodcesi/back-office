@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const WS_URL = process.env.NEXT_PUBLIC_ORDER_WS_URL || "ws://localhost:8080/ws";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/ws";
 
 interface WebSocketMessage {
     type: string;
