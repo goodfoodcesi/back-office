@@ -35,7 +35,7 @@ export const orderApi = {
         const response = await fetch(`${ORDER_API_URL}/orders/${orderId}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
+            body: JSON.stringify({ status }),
             ...(isServer && { agent } as any),
         });
         if (!response.ok) throw new Error('Failed to update order');

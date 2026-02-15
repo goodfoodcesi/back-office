@@ -117,6 +117,7 @@ export default function OrdersPage() {
                                         {order.status === "pending" && (
                                             <Button
                                                 onClick={() => handleStatusUpdate(order._id, "confirmed")}
+                                                className="cursor-pointer bg-blue-600 hover:bg-blue-700"
                                             >
                                                 Accepter
                                             </Button>
@@ -124,6 +125,7 @@ export default function OrdersPage() {
                                         {order.status === "confirmed" && (
                                             <Button
                                                 onClick={() => handleStatusUpdate(order._id, "prepared")}
+                                                className="cursor-pointer bg-green-600 hover:bg-green-700"
                                             >
                                                 Marquer comme prête
                                             </Button>
@@ -132,6 +134,7 @@ export default function OrdersPage() {
                                             <Button
                                                 variant="destructive"
                                                 onClick={() => handleStatusUpdate(order._id, "cancelled")}
+                                                className="cursor-pointer"
                                             >
                                                 Annuler
                                             </Button>
