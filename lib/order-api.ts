@@ -36,6 +36,7 @@ export const orderApi = {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status }),
+            credentials: 'include',
             ...(isServer && { agent } as any),
         });
         if (!response.ok) {
