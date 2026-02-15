@@ -55,7 +55,7 @@ export function ShopDetailsClient({
         description: m.description ?? "",
         price: Number(m.price ?? 0),
         category: m.category ?? "",
-        available: (m.stock ?? 0) > 0,
+        available: m.isPublished,
         _stock: m.stock ?? 0,
         _options: (m.options ?? []) as MenuOption[],
       })),
@@ -145,10 +145,11 @@ export function ShopDetailsClient({
     const existingIds = new Set(menus.map((m) => m.id));
 
     try {
+      // 1. Create new menus
       for (const menu of nextMenus) {
         if (!menu.id || !existingIds.has(menu.id)) {
           // Create new menu
-          await shopApiClientFetch("/menus", {
+          const createRes = await shopApiClientFetch("/menus", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -157,24 +158,43 @@ export function ShopDetailsClient({
               description: menu.description,
               category: menu.category,
               price: String(menu.price),
-              stock: menu.available ? (menu._stock ?? 0) : 0,
+              stock: menu._stock ?? 0, // Keep stock as is (or default 0)
               options: menu._options ?? [],
             }),
           });
+
+          // If created successfully and should be available, publish it
+          const res = createRes as any;
+          if (res && res.data && res.data.id && menu.available) {
+             await shopApiClientFetch(`/menus/${res.data.id}/publish`, {
+              method: "POST",
+            });
+          }
           continue;
         }
 
+        // 2. Update existing menus
         const original = menus.find((m) => m.id === menu.id);
         if (!original) continue;
 
-        const changed =
+        // Check Availability (isPublished)
+        if (menu.available !== original.isPublished) {
+          if (menu.available) {
+            await shopApiClientFetch(`/menus/${menu.id}/publish`, { method: "POST" });
+          } else {
+            await shopApiClientFetch(`/menus/${menu.id}/unpublish`, { method: "POST" });
+          }
+        }
+
+        // Check Content Changes
+        const contentChanged =
           original.name !== menu.name ||
           original.description !== menu.description ||
           original.category !== menu.category ||
           Number(original.price) !== Number(menu.price) ||
           Number(original.stock) !== Number(menu._stock);
 
-        if (changed) {
+        if (contentChanged) {
           await shopApiClientFetch(`/shop/${shop.id}/menus/${menu.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -183,7 +203,7 @@ export function ShopDetailsClient({
               description: menu.description,
               category: menu.category,
               price: String(menu.price),
-              stock: menu.available ? (menu._stock ?? 0) : 0,
+              stock: menu._stock, // Pass the stock value (even if UI doesn't edit it, prevent reset)
               options: menu._options ?? [],
             }),
           });

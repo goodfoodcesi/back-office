@@ -22,6 +22,7 @@ export type MenuItemApi = {
   price: string;
   stock: number;
   category: string;
+  isPublished: boolean;
   options?: MenuOption[];
   createdAt?: string;
   updatedAt?: string;
