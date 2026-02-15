@@ -38,7 +38,11 @@ export const orderApi = {
             body: JSON.stringify({ status }),
             ...(isServer && { agent } as any),
         });
-        if (!response.ok) throw new Error('Failed to update order');
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Order API Error (${response.status}):`, errorText);
+            throw new Error(`Failed to update order: ${response.status} ${errorText}`);
+        }
         return response.json();
     },
 };
