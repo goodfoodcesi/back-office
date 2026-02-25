@@ -6,29 +6,19 @@ const ERROR_IMG_SRC = "https://example.com/image.jpg";
 export function ImageWithFallback(
   props: React.ImgHTMLAttributes<HTMLImageElement>,
 ) {
-  const [didError] = useState(false);
+
   const { src, alt, style, className, ...rest } = props;
 
-  return didError ? (
+  const image = typeof src !== "string" ? ERROR_IMG_SRC : src;
+
+  return (
     <div
-      className={`inline-block bg-gray-100 text-center align-middle ${className ?? ""}`}
+      className={` inline-block bg-gray-100 text-center align-middle ${className ?? ""}`}
       style={style}
     >
       <div className="flex items-center justify-center w-full h-full">
-        <Image
-          src={ERROR_IMG_SRC}
-          alt="Error loading image"
-          height={48}
-          width={48}
-        />
+        <img src={image} alt="image of restaurant" />
       </div>
     </div>
-  ) : (
-    <Image
-      src={ERROR_IMG_SRC}
-      alt="Error loading image"
-      height={48}
-      width={48}
-    />
   );
 }

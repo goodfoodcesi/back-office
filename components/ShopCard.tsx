@@ -55,16 +55,7 @@ function buildAddress(shop: Shop) {
 }
 
 const FALLBACK_IMAGE =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-  <rect width="100%" height="100%" fill="#e5e7eb"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-    fill="#9ca3af" font-family="Arial, sans-serif" font-size="36">
-    No image
-  </text>
-</svg>
-`);
+  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=800&fit=crop&q=80";
 
 export function ShopCard({
   shop,
@@ -83,7 +74,6 @@ export function ShopCard({
     router.push(`/shop/shops/${shop.id}/orders`);
   };
 
-  console.log("les info dans shop card oooooo: ", shop);
 
   return (
     <div

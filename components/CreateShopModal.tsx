@@ -22,6 +22,7 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
 
     try {
       const formData = new FormData(e.currentTarget);
+      const coverImageValue = String(formData.get("coverImage") ?? "");
       const payload = {
         name: String(formData.get("name") ?? ""),
         description: String(formData.get("description") ?? ""),
@@ -32,10 +33,11 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
         country: String(formData.get("country") ?? ""),
         phone: String(formData.get("phone") ?? ""),
         siret: String(formData.get("siret") ?? ""),
-        imageUrl: String(formData.get("imageUrl") ?? ""),
+        ...(coverImageValue ? { coverImage: coverImageValue } : {}),
       };
 
-      if (Object.values(payload).some((v) => !v)) {
+      const requiredFields = [payload.name, payload.description, payload.category, payload.address, payload.city, payload.zipCode, payload.country, payload.phone, payload.siret];
+      if (requiredFields.some((v) => !v)) {
         setError("Tous les champs sont obligatoires.");
         setLoading(false);
         return;
@@ -197,12 +199,11 @@ export function CreateShopModal({ isOpen, onClose }: CreateShopModalProps) {
 
             <div>
               <label className="font-['Space_Grotesk'] text-[14px] mb-[8px] block">
-                URL de l'image *
+                Image de couverture (URL)
               </label>
               <input
-                name="imageUrl"
+                name="coverImage"
                 type="url"
-                required
                 placeholder="https://example.com/image.jpg"
                 className="w-full bg-white border-2 border-[#e8e8e8] rounded-[8px] px-[12px] py-[10px]"
               />
