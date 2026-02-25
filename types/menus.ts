@@ -24,6 +24,7 @@ export type MenuItemApi = {
   category: string;
   isPublished: boolean;
   options?: MenuOption[];
+  imageUrl?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };

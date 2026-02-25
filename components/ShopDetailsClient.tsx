@@ -56,6 +56,7 @@ export function ShopDetailsClient({
         price: Number(m.price ?? 0),
         category: m.category ?? "",
         available: m.isPublished,
+        imageUrl: m.imageUrl ?? "",
         _stock: m.stock ?? 0,
         _options: (m.options ?? []) as MenuOption[],
       })),
@@ -158,8 +159,9 @@ export function ShopDetailsClient({
               description: menu.description,
               category: menu.category,
               price: String(menu.price),
-              stock: menu._stock ?? 0, // Keep stock as is (or default 0)
+              stock: menu._stock ?? 0,
               options: menu._options ?? [],
+              imageUrl: menu.imageUrl || undefined,
             }),
           });
 
@@ -203,8 +205,9 @@ export function ShopDetailsClient({
               description: menu.description,
               category: menu.category,
               price: String(menu.price),
-              stock: menu._stock, // Pass the stock value (even if UI doesn't edit it, prevent reset)
+              stock: menu._stock,
               options: menu._options ?? [],
+              imageUrl: menu.imageUrl || undefined,
             }),
           });
         }
